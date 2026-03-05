@@ -55,6 +55,8 @@ type TransferTxResult struct {
 	ToAccount   Account  `json:"to_account"`
 }
 
+// var txKey = struct{}{} // clave para almacenar la transaccion en el contexto creamos objeto vacio
+
 // TrnsferTx para realizar una transferencia de dinero entre dos cuentas.
 // Esta función realiza varias operaciones dentro de una transacción: crear una transferencia, crear entradas para ambas cuentas y actualizar los balances de las cuentas. Si alguna de estas operaciones falla, la transacción se revertirá para mantener la integridad de los datos.
 func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
@@ -62,6 +64,8 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 
 	err := store.execTx(ctx, func(q *Queries) error { //este objeto de consulta se crea a partir de la transacción, por lo que todas las operaciones dentro de esta función se ejecutarán dentro de la misma transacción
 		var err error
+
+		// txName := ctx.Value(txKey) //obtenemos el nombre de la transaccion del contexto para identificarla en los logs
 
 		result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{ //creamos la transferencia
 			FromAccountID: arg.FromAccountID,
@@ -88,9 +92,36 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 			return err
 		}
 
-		//todo actualizar los balances de las cuentas
+		if arg.FromAccountID < arg.ToAccountID { // para evitar deadlocks, siempre actualizamos las cuentas en el mismo orden, en este caso, de menor a mayor ID
+			result.FromAccount, result.ToAccount, err = addMoney(ctx, q, arg.FromAccountID, -arg.Amount, arg.ToAccountID, arg.Amount)
+		} else {
+			result.ToAccount, result.FromAccount, err = addMoney(ctx, q, arg.ToAccountID, arg.Amount, arg.FromAccountID, -arg.Amount)
+		}
 
 		return nil
 	})
 	return result, err
+}
+
+func addMoney(
+	ctx context.Context,
+	q *Queries,
+	accountID1 int64,
+	amount1 int64,
+	accountID2 int64,
+	amount2 int64,
+) (account1 Account, account2 Account, err error) {
+	account1, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
+		ID:     accountID1,
+		Amount: amount1,
+	})
+	if err != nil {
+		return
+	}
+
+	account2, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
+		ID:     accountID2,
+		Amount: amount2,
+	})
+	return
 }
