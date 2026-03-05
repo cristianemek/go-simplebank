@@ -16,14 +16,16 @@ const (
 )
 
 var testQueries *Queries
+var testDB *sql.DB
 
 func TestMain(m *testing.M) { // por convencion la funcion TestMain es el punto de entrada para todas las pruebas unitarias
-	conn, err := sql.Open(dbDriver, dbSource) //creamos coexion a la base de datos
+	var err error
+	testDB, err = sql.Open(dbDriver, dbSource) //creamos coexion a la base de datos
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}
 
-	testQueries = New(conn)
+	testQueries = New(testDB)
 
 	os.Exit(m.Run())
 }
