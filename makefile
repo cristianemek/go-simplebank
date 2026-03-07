@@ -1,5 +1,3 @@
-.PHONY: createdb, dropdb, postgres, migrateup, migratedown, test
-
 postgres:
 	docker run --name postgres -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:18.3-alpine
 
@@ -17,3 +15,8 @@ migratedown:
 
 test:
 	go test -v -cover ./...
+
+server:
+	go run main.go
+
+.PHONY: createdb, dropdb, postgres, migrateup, migratedown, test, server
