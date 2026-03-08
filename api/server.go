@@ -7,12 +7,12 @@ import (
 
 // Server va a servir todas las peticiones http para nuestro proyecto
 type Server struct {
-	store  *db.Store
+	store  db.Store
 	router *gin.Engine
 }
 
 // Funcion para crear una nueva instancia del servidor y configurar las rutas
-func NewServer(store *db.Store) *Server {
+func NewServer(store db.Store) *Server {
 	server := &Server{
 		store: store,
 	}
