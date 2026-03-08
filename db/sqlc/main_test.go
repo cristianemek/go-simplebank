@@ -6,21 +6,19 @@ import (
 	"os"
 	"testing"
 
+	"github.com/cristianemek/go-simplebank/util"
 	_ "github.com/lib/pq"
-)
-
-// todo por el momento las declaro como constantes en el futuro se deben de leer de las variables de entorno
-const (
-	dbDriver = "postgres"
-	dbSource = "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable"
 )
 
 var testQueries *Queries
 var testDB *sql.DB
 
 func TestMain(m *testing.M) { // por convencion la funcion TestMain es el punto de entrada para todas las pruebas unitarias
-	var err error
-	testDB, err = sql.Open(dbDriver, dbSource) //creamos coexion a la base de datos
+	config, err := util.LoadConfig("../..")
+	if err != nil {
+		log.Fatal("cannot load config:", err)
+	}
+	testDB, err = sql.Open(config.DBDriver, config.DBSource) //creamos coexion a la base de datos
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}
