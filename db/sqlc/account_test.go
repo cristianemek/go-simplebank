@@ -12,8 +12,10 @@ import (
 
 // al no tener prefijo Test en el nombre de la función, esta no se va a ejecutar automáticamente al correr los tests, es una función auxiliar que se va a usar para crear cuentas aleatorias en otros tests
 func createRandomAccount(t *testing.T) Account {
+	user := createRandomUser(t)
+
 	arg := CreateAccountParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
