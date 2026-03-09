@@ -11,9 +11,12 @@ import (
 
 // al no tener prefijo Test en el nombre de la función, esta no se va a ejecutar automáticamente al correr los tests, es una función auxiliar que se va a usar para crear cuentas aleatorias en otros tests
 func createRandomUser(t *testing.T) User {
+	hashedPassword, err := util.HashPassword(util.RandomString(6))
+	require.NoError(t, err)
+
 	arg := CreateUserParams{
 		Username:       util.RandomOwner(),
-		HashedPassword: "secret",
+		HashedPassword: hashedPassword,
 		FullName:       util.RandomOwner(),
 		Email:          util.RandomEmail(),
 	}
