@@ -10,11 +10,12 @@ import (
 // Los valores son leidos por viper desde un archivo de configuración o variables de entorno
 
 type Config struct {
-	DBDriver           string        `mapstructure:"DB_DRIVER"`
-	DBSource           string        `mapstructure:"DB_SOURCE"`
-	ServerAddress      string        `mapstructure:"SERVER_ADDRESS"`
-	TokenSymmetricKey  string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
-	AccesTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
+	DBDriver             string        `mapstructure:"DB_DRIVER"`
+	DBSource             string        `mapstructure:"DB_SOURCE"`
+	ServerAddress        string        `mapstructure:"SERVER_ADDRESS"`
+	TokenSymmetricKey    string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
+	AccesTokenDuration   time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
+	RefreshTokenDuration time.Duration `mapstructure:"REFRESH_TOKEN_DURATION"`
 }
 
 // Load config lee configuracion de una variable de entorno
