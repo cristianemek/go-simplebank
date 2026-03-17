@@ -1,1 +1,0 @@
-ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_agent_key" UNIQUE ("user_agent");

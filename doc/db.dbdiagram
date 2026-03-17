@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "detailLevel": "All",
+  "tablePositions": [
+    {
+      "name": "users",
+      "schemaName": "public",
+      "x": 3.580434600268397,
+      "y": -80.61521939704758
+    },
+    {
+      "name": "accounts",
+      "schemaName": "public",
+      "x": 490.7534329467024,
+      "y": -196.38424364335697
+    },
+    {
+      "name": "entries",
+      "schemaName": "public",
+      "x": 955.0189964853275,
+      "y": -334.29326719545736
+    },
+    {
+      "name": "transfers",
+      "schemaName": "public",
+      "x": 958.4476426951835,
+      "y": -131.72191340531336
+    },
+    {
+      "name": "sessions",
+      "schemaName": "public",
+      "x": 488.6485415967695,
+      "y": 138.44075845355644
+    }
+  ],
+  "tableGroupCollapseStates": [],
+  "stickyNoteLayouts": [],
+  "referencePaths": []
+}

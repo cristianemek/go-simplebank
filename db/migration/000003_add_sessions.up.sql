@@ -2,7 +2,7 @@ CREATE TABLE "sessions" (
   "id" uuid PRIMARY KEY,
   "username" varchar NOT NULL,
   "refresh_token" varchar NOT NULL,
-  "user_agent" varchar UNIQUE NOT NULL,
+  "user_agent" varchar NOT NULL,
   "client_ip" varchar NOT NULL,
   "is_blocked" boolean NOT NULL,
   "expires_at" timestamptz NOT NULL,
