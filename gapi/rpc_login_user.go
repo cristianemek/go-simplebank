@@ -1,0 +1,70 @@
+package gapi
+
+import (
+	"context"
+	"database/sql"
+
+	db "github.com/cristianemek/go-simplebank/db/sqlc"
+	"github.com/cristianemek/go-simplebank/pb"
+	"github.com/cristianemek/go-simplebank/util"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
+
+func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
+
+	user, err := server.store.GetUser(ctx, req.GetUsername())
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, status.Errorf(codes.NotFound, "user not found: %s", err)
+		}
+		return nil, status.Errorf(codes.Internal, "error getting user  %s", err)
+	}
+
+	err = util.CheckPassword(req.Password, user.HashedPassword)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "invalidad password: %s", err)
+	}
+
+	accesToken, accesPayload, err := server.tokenMaker.CreateToken(user.Username, server.config.AccesTokenDuration)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "error creating acces token: %s", err)
+	}
+
+	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(
+		user.Username,
+		server.config.RefreshTokenDuration,
+	)
+
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "error creating refresh token: %s", err)
+	}
+
+	session, err := server.store.CreateSession(ctx,
+		db.CreateSessionParams{
+			ID:           refreshPayload.ID,
+			Username:     user.Username,
+			RefreshToken: refreshToken,
+			UserAgent:    "",
+			ClientIp:     "",
+			IsBlocked:    false,
+			ExpiresAt:    refreshPayload.ExpiresAt.Time,
+		})
+
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "error creating session: %s", err)
+	}
+
+	rsp := &pb.LoginUserResponse{
+		User:                  convertUser(user),
+		SessionId:             session.ID.String(),
+		AccessToken:           accesToken,
+		RefreshToken:          refreshToken,
+		AccessTokenExpiresAt:  timestamppb.New(accesPayload.ExpiresAt.Time),
+		RefreshTokenExpiresAt: timestamppb.New(refreshPayload.ExpiresAt.Time),
+	}
+
+	return rsp, nil
+
+}
