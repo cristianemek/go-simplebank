@@ -11,7 +11,7 @@ FROM alpine:3.23
 WORKDIR /app
 COPY --from=builder /app/main .
 COPY --from=builder /app/migrate ./migrate
-COPY app.env .
+COPY app.env.example .
 COPY start.sh .
 RUN chmod +x /app/start.sh
 COPY wait-for.sh .
