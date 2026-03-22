@@ -12,6 +12,7 @@ import (
 	"github.com/cristianemek/go-simplebank/gapi"
 	"github.com/cristianemek/go-simplebank/pb"
 	"github.com/cristianemek/go-simplebank/util"
+	"github.com/golang-migrate/migrate/v4"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rakyll/statik/fs"
 	"google.golang.org/grpc"
@@ -19,6 +20,8 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 
 	_ "github.com/cristianemek/go-simplebank/doc/statik"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq" // driver de postgres para conectar con la base de datos
 )
 
@@ -32,9 +35,25 @@ func main() {
 		log.Fatal("cannot connect to db:", err)
 	}
 
+	runDBMigration(config.MigrationUrl, config.DBSource)
+
 	store := db.NewStore(conn)
 	go runGatewayServer(config, store)
 	runGrpcServer(config, store)
+}
+
+func runDBMigration(migrationUrl string, dbSource string) {
+	migration, err := migrate.New(migrationUrl, dbSource)
+
+	if err != nil {
+		log.Fatal("cannot create a new migrate instance")
+	}
+
+	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal("failed to run migrate up:", err)
+	}
+
+	log.Println("db migrate succesfully")
 }
 
 func runGrpcServer(config util.Config, store db.Store) {
