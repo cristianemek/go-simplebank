@@ -56,5 +56,7 @@ proto:
 evans:
 	evans --host localhost --port 9090 -r repl
 
+redis:
+	docker run --name redis -p 6379:6379 -d redis:alpine
 
-.PHONY: createdb, dropdb, postgres, migrateup, migratedown, test, server, mock, migrateup1, migratedown1, new_migration, sqlc, proto, evans, db_docs, db_schema
+.PHONY: createdb, dropdb, postgres, migrateup, migratedown, test, server, mock, migrateup1, migratedown1, new_migration, sqlc, proto, evans, db_docs, db_schema, redis
