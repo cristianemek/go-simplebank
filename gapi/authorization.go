@@ -35,7 +35,7 @@ func (server *Server) authorizeUser(ctx context.Context) (*token.Payload, error)
 	}
 
 	authType := strings.ToLower(fields[0])
-	if authType != "Bearer" {
+	if authType != authorizationBearer {
 		return nil, fmt.Errorf("unsupported authorization type: %s", authType)
 	}
 
