@@ -9,7 +9,6 @@ import (
 	"github.com/cristianemek/go-simplebank/util"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 )
 
 type createUserRequest struct {
@@ -61,12 +60,11 @@ func (server *Server) createUser(ctx *gin.Context) {
 	user, err := server.store.CreateUser(ctx, arg)
 
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok { //convertimos error a error de postgres, si existe err de postgres imprimimos codigo
-			switch pqErr.Code.Name() {
-			case "unique_violation":
-				ctx.JSON(http.StatusForbidden, ErrorResponse(err))
-				return
-			}
+
+		if db.ErrorCode(err) == db.UniqueViolation { //convertimos error a error de postgres, si existe err de postgres imprimimos codigo
+
+			ctx.JSON(http.StatusForbidden, ErrorResponse(err))
+			return
 		}
 
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
