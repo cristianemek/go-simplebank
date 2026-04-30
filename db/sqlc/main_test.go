@@ -1,29 +1,28 @@
 package db
 
 import (
-	"database/sql"
+	"context"
 	"log"
 	"os"
 	"testing"
 
 	"github.com/cristianemek/go-simplebank/util"
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var testQueries *Queries
-var testDB *sql.DB
+var testStore Store
 
 func TestMain(m *testing.M) { // por convencion la funcion TestMain es el punto de entrada para todas las pruebas unitarias
 	config, err := util.LoadConfig("../..")
 	if err != nil {
 		log.Fatal("cannot load config:", err)
 	}
-	testDB, err = sql.Open(config.DBDriver, config.DBSource) //creamos coexion a la base de datos
+	connPool, err := pgxpool.New(context.Background(), config.DBSource) //creamos coexion a la base de datos
 	if err != nil {
 		log.Fatal("cannot connect to db:", err)
 	}
 
-	testQueries = New(testDB)
+	testStore = NewStore(connPool)
 
 	os.Exit(m.Run())
 }
