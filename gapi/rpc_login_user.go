@@ -33,13 +33,19 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		return nil, status.Errorf(codes.NotFound, "invalidad password: %s", err)
 	}
 
-	accesToken, accesPayload, err := server.tokenMaker.CreateToken(user.Username, server.config.AccesTokenDuration)
+	accesToken, accesPayload, err := server.tokenMaker.CreateToken(
+		user.Username,
+		user.Role,
+		server.config.AccesTokenDuration,
+	)
+
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "error creating acces token: %s", err)
 	}
 
 	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(
 		user.Username,
+		user.Role,
 		server.config.RefreshTokenDuration,
 	)
 

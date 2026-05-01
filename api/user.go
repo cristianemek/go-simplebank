@@ -21,6 +21,7 @@ type createUserRequest struct {
 type UserResponse struct {
 	Username          string    `json:"username"`
 	FullName          string    `json:"full_name"`
+	Role              string    `json:"role"`
 	Email             string    `json:"email"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
@@ -30,6 +31,7 @@ func newUserResponse(user db.User) UserResponse {
 	return UserResponse{
 		Username:          user.Username,
 		FullName:          user.FullName,
+		Role:              user.Role,
 		Email:             user.Email,
 		PasswordChangedAt: user.PasswordChangedAt,
 		CreatedAt:         user.CreatedAt,
@@ -111,7 +113,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
-	accesToken, accesPayload, err := server.tokenMaker.CreateToken(user.Username, server.config.AccesTokenDuration)
+	accesToken, accesPayload, err := server.tokenMaker.CreateToken(user.Username, user.Role, server.config.AccesTokenDuration)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, ErrorResponse(err))
 		return
@@ -119,6 +121,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 
 	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(
 		user.Username,
+		user.Role,
 		server.config.RefreshTokenDuration,
 	)
 

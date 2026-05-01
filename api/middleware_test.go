@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/cristianemek/go-simplebank/token"
+	"github.com/cristianemek/go-simplebank/util"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )
@@ -20,7 +21,7 @@ func addAuthorization(
 	username string,
 	duration time.Duration,
 ) {
-	token, payload, err := tokenMaker.CreateToken(username, duration)
+	token, payload, err := tokenMaker.CreateToken(username, util.DepositorRole, duration)
 	require.NotEmpty(t, payload)
 	require.NoError(t, err)
 
